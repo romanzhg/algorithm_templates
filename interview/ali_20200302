@@ -1,0 +1,75 @@
+应聘职位：	创新事业群UC事业部-Java技术专家
+面试时间：	2020-03-02 14:30[ (UTC+08:00)北京 ] 开始
+备注信息：	请保持电话通畅，如超出预约时间15分钟还没收到电话，请及时联系李小姐18588807201，谢谢！
+面试安排联系人：	李丽娟
+面试安排联系电话：	+86-18588807201
+面试安排人邮箱：	wb-llj664152@alibaba-inc.com
+
+
+
+用Singlely linked list写一个stack
+（未完成的部分：指针应从最上面的elem指向第一个elem）
+
+
+struct Elem {
+  Elem* next;
+  string data;
+}
+
+class Stack {
+ public:
+  Stack(int size) : size_limit(size) {
+    head = new Elem();
+    tail = head;
+    cur_size = 0;
+  };
+  
+  // Producer.
+  void Push(const string& s) {
+    m.lock();
+    while (cur_size == size_limit) {
+      cv_p.wait(m);
+    }
+    
+  	tail->next = new Elem(s);
+    tail = tail->next;
+    cur_size++;
+    
+    cv_c.notify_one();
+    m.unlock();
+  }
+  
+  // Consumer.
+  string Pop() {
+    m.lock();
+    while (cur_size == 0) {
+      cv_c.wait(m);
+    }
+	
+    string rtn = tail->data;
+    
+    delete tail;
+    
+    Elem* tmp = head;
+    for (int i = 0; i < cur_size - 1; i++) {
+      tmp = tmp->next;
+    }
+    tail = tmp;
+    tail->next = NULL;
+    cur_size--;
+    
+    cv_p.notify_one();
+    m.unlock();
+    return rtn;
+  }
+  
+  top()
+  
+ private:
+  int size_limit;
+  int cur_size;
+  mutex m;
+  conditional_variable cv_c, cv_p;
+  Elem* head;
+  Elem* tail;
+}

@@ -1,0 +1,107 @@
+http://codeforces.com/contest/1213/problem/D1
+(The good part about code forces is the test cases are available.)
+
+#include <iostream>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+int len, k;
+
+// How may /2s to get a.
+// b >= 0;
+int GetDist(int a, int b) {
+  if (b == a) {
+    return 0;
+  } else if (b < a) {
+    return -1;
+  } else {
+    // b > a
+    return 1 + GetDist(a, b/2);
+  }
+}
+
+struct Elem {
+  int value, count;
+};
+
+int main() {
+  scanf("%d %d", &len, &k);
+  map<int, int> count_map;
+  for (int i = 0; i < len; i++) {
+    int tmp;
+    scanf("%d", &tmp);
+    count_map[tmp]++;
+  }
+
+  vector<Elem> nums;
+  for (const auto& kv : count_map) {
+    nums.push_back({kv.first, kv.second});
+  }
+  
+  int rtn = INT_MAX;
+  for (int i = 0; i < nums.size(); i++) {
+    int op_count = 0;
+    int j = i + 1;
+    while (nums[i].count < k && j < nums.size()) {
+      int dist = GetDist(nums[i].value, nums[j].value);
+      if (dist < 0) {
+        continue;
+      }
+      op_count += min(k - nums[i].count, nums[j].count) * dist;
+      nums[i].count += min(k - nums[i].count, nums[j].count);
+    }
+    if (nums[i].count >= k) {
+      rtn = min(rtn, op_count);
+    }
+    j++;
+  }
+  
+  return rtn;
+}
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int a[300000] = {0};
+int c[300000] = {0};
+int k[300000] = {0};
+
+int main() {
+    int n;
+    int kk;
+    std::cin >> n >> kk;
+    for (int  i= 0; i < n; i++)
+    {
+        std::cin >> a[i];
+    }
+
+    std::sort(a, a+n);
+
+    int ans = (1 << 30);
+    for (int i = 0; i < n; i++)
+    {
+        int v = a[i];
+        int cnt = 0;
+        while (v > 0)
+        {
+            c[v] += cnt;
+            k[v] += 1;
+            if (k[v] == kk)
+            {
+                ans = std::min(ans, c[v]);
+            }
+            v /=2;
+            cnt++;
+        }
+    }
+
+    std::cout << ans << std::endl;
+
+
+    return 0;
+}
+

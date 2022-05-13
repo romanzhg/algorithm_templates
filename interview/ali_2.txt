@@ -1,0 +1,119 @@
+//评测题目: 无
+1. 实现一个字符串类，构造函数，拷贝构造，赋值，析构，插入
+
+class String {
+  public:
+    String() {
+      data = NULL;
+      len = 0;
+    };
+
+    String(const String& o) {
+      data = malloc(o.len);
+      if (data == NULL) {
+      	return;
+      }
+      memcpy(data, o.data, o.len);
+      len = o.len;
+    };
+
+    String(char* c_str) {
+      len = strlen(c_str);
+      data = malloc(len);
+      if (data == NULL) {
+        len = 0;
+        return;
+      }
+
+      memcpy(data, c_str, len);
+    };
+
+    ~String() {
+      delete data;
+    };
+
+    String& operator=(const String& o) {
+      delete data;
+
+      data = malloc(o.len);
+      if (data == NULL) {
+        return *this;
+      }
+      memcpy(data, o.data, o.len);
+      len = o.len;
+
+	  return *this;
+    };
+
+    void Insert(char* c_str, int pos) {
+      if (pos < 0) {
+        pos = 0;
+      }
+      if (pos >= len) {
+        pos = len;
+      }
+
+      int len_to_insert = strlen(c_str);
+      int new_len = len + len_to_insert;
+
+      char* tmp_data = malloc(new_len);
+      if (tmp_data == NULL) {
+        return;
+      }
+      // Assume: memcpy signature: (to, from, len).
+      memcpy(tmp_data, data, pos);
+      memcpy(tmp_data + pos, c_str, len_to_insert);
+      memcpy(tmp_data + pos + len_to_insert, data + pos, len - pos);
+
+      delete data;
+      data = tmp_data;
+    };
+
+  private:
+    // No NULL appended.
+    char* data;
+    int len = 0;
+}
+
+
+2. 实现MergeSort. 实现方式无问题，确实需要多一倍的存储。
+
+void VectorCopy(vector<int>& to, const vector<int> from, int start) {
+  for (int i = 0; i < from.size(); i++) {
+    to[start + i] = from[i];
+  }
+}
+
+void MergeSort(vector<int>& data) {
+  MergeSort(data, 0, data.size());
+}
+
+void MergeSort(vector<int>& data, int start, int end) {
+  if (end - start <= 1) {
+    return;
+  }
+  int mid = (end - start) / 2 + start;
+  MergeSort(data, start, mid);
+  MergeSort(data, mid, end);
+
+  vector<int> tmp(end - start);
+  int l_ptr = start, r_ptr = mid;
+  int counter = 0;
+  while (l_ptr != mid || r_ptr != end) {
+  	if (l_ptr == mid) {
+      tmp[counter++] = data[r_ptr++];
+      continue;
+    }
+    if (r_ptr == end) {
+      tmp[counter++] = data[l_ptr++];
+      continue;
+    }
+    if (data[l_ptr] < data[r_ptr]) {
+      tmp[counter++] = data[l_ptr++];
+    } else {
+      tmp[counter++] = data[r_ptr++];
+    }
+  }
+
+  VectorCopy(data, tmp, start);
+}

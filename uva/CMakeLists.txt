@@ -1,0 +1,8 @@
+file(GLOB files "*.cpp")
+foreach(file ${files})
+#    message(${file})
+    string(REPLACE "/home/romanzhg/ws/repos/oj/uva/" "" name ${file})
+    string(REPLACE ".cpp" "" pure_name ${name})
+#    message(${pure_name})
+    add_executable(${pure_name} ${file})
+endforeach()

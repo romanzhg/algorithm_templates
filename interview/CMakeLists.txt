@@ -1,0 +1,7 @@
+file(GLOB files "*.cpp")
+foreach(file ${files})
+    string(REPLACE "/home/romanzhg/ws/repos/oj/other/" "" name ${file})
+    string(REPLACE ".cpp" "" pure_name ${name})
+    add_executable(${pure_name} ${file})
+    target_link_libraries(${pure_name} pthread)
+endforeach()

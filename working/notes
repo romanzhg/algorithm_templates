@@ -1,0 +1,156 @@
+=================================================================
+
+20210721
+pnc的设计中应可以借鉴的内容
+1. 有一世界状态，作为global variable，其他内容可从此世界状态内推出。
+2. 当前action的内容是不断new的，应思考是否可以不new.
+3. 应思考不断调用的state machine如何应用在我们当前的项目上。当前vision dock/vision pick已经很复杂，是否可以使用原子动作/state machine来实现其流程。
+4. 与rss的接口应确定一个原则：应有更高层级的。rss的应主要负责公共资源的分配。
+
+=================================================================
+20211104
+完成修改后应在youtrack的issue上@思睿。
+=================================================================
+20211019
+避障相关问题
+张弘about 11 hours ago
+update一下，与金文讨论了一下，一些背景
+
+车要知道是否有托盘来更新碰撞面积，有两个原因：用来正确的避障，确保costmap中不会认为托盘是障碍物（碰撞面积下的避障激光扫描点被忽略）。
+车要及时知道，否则会在navigation开始前闪现一次避障。
+
+User avatar
+张弘about 11 hours ago
+一些相关的思路：
+
+0. 如果调度可以"在做叉子的动作时，传入一个托盘大小的参数，如果是取货，则进行footprint拼接，并在costmap中更新自身的footprint，如果是放货，则默认恢复成自身的footprint大小。"
+
+不依赖调度的方法：
+
+1. 总按照车载货有托盘的情况来设置碰撞面积。可能的问题：在长青场景（是否还有其他场景）会产生通过性的问题（待与诗谊讨论）；如果车需要运载不规则形状的货物，还是需要有变更碰撞面积的能力。
+
+2. 修改避障雷达的范围，当前似乎为270度，可以改小，不包括临近车身的地方。
+
+User avatar
+张弘less than a minute ago
+碰撞检测误报的原因：1. 靠近车的地方激光扫出障碍点（在odom坐标下，与footprint相接）。2. 车因为定位原因稍微偏离规划路线，而碰撞检测认为车在规划路线上。这两点共同作用导致避障。
+=================================================================
+20211014
+整理pnc向RSS的接口，确认演示项目的需求
+整理plc_proxy
+与以凡确认充电的实现，原地充电是否可能，充电成功的判断是否应加入电流
+确定宜家项目的视觉部分
+确定宜家项目的车辆
+学习视觉部分
+避障
+
+20211013
+todo
+1. 去掉原地打舵轮的动作
+2. 上一帧的控制输出应有一统一的结构管理。
+3. 应整理down sample counter，统一使用时间。
+
+update一下，目前关于PnC/DPC如何进一步改进有一些想法，之后会根据各个项目的需求，进一步讨论，主要的目标是运行效率和稳定性
+1. 将视觉的处理与移动并行，以提高效率。
+2. 多个移动任务之间应该能连续进行。
+3. 整理和简化API，让开发流程更简单。
+=================================================================
+20210926
+opc notes
+https://reference.opcfoundation.org/v104/Core/docs/Part6/7.2/
+
+
+dorabot gateway
+https://gitlab.dorabot.com/pick_and_place/pick_and_place/opc_ua_gateway
+imports siemens opcua
+https://gitlab.dorabot.com/pick_and_place/pick_and_place/opc_ua_gateway/-/blob/master/opc_ua_gateway/package.xml#L15
+
+good introduction
+https://www.cnblogs.com/minily/p/13324120.html
+
+s7.net
+https://github.com/S7NetPlus/s7netplus/wiki#what-is-s7net
+
+s7.net implements opc
+https://blog.csdn.net/chijiaozhao5384/article/details/101003478
+
+the plc type
+https://baike.baidu.com/item/S7-1200/3797980
+
+siemens' implementation of opc
+https://new.siemens.com/global/en/products/automation/industrial-communication/opc-ua.html
+
+opc reference
+https://blog.csdn.net/chijiaozhao5384/article/details/101003478
+
+plc control
+TIA Portal V15: update ip address and etc.
+https://zhuanlan.zhihu.com/p/56570655
+
+opc ua apis
+https://en.wikipedia.org/wiki/OPC_Unified_Architecture#OPC_UA_APIs
+=================================================================
+20210913
+1. 应与国权讨论，有什么事情佳怡可以帮忙。
+2. 本地学习vision，应如何搭相机，供电。用什么相机，是否有多余的？
+3. 本地搭起东莞的场景后，应如何测试。用什么相机，是否有多余的？
+
+=================================================================
+20210912
+需要注意的点
+1. 连续动作，非法路径检查，相机结果的获取和相机管理，pnc结构的改进。
+2. 当前mpc模型的具体内容，如何加入不正常路径的检测。
+3. 与叉控上移类似，是否一些之前在嵌入式/driver中做的事情可以提到pnc来做？
+4. 对于pnc中跟踪微分器所需要的知道的频率/interval，是否应该有相关逻辑来检查？如果输入数据不是按照这一频率，应报警？
+=================================================================
+20210909
+实现的路径
+1. 学习两个点之间的路径生成（？），考虑pnc_controller如何实现地图和流程。
+2. 学习vision。
+3. 学习control。
+
+=================================================================
+20210823
+cq_app激光地图
+data/mob_graph_data手画地图
+
+
+
+1. Rebase workflow
+
+git checkout experiment
+git rebase master
+git checkout master
+git merge experiment
+
+2. Remove recent commits
+# This will destroy any local modifications.
+# Don't do it if you have uncommitted work you want to keep.
+git reset --hard 0d1d7fc32
+# Alternatively, if there's work to keep:
+git stash
+git reset --hard 0d1d7fc32
+git stash pop
+# This saves the modifications, then reapplies that patch after resetting.
+# You could get merge conflicts, if you've modified things which were
+# changed since the commit you reset to.
+
+3. git stash
+3.1 show stash
+git stash show -p stash@{1} // "stash@{1}" the stash name.
+=================================================================
+
+Debug network problem
+
+system log
+dmesg | less
+vim /var/log/syslog
+
+show network devices
+arp -v
+
+check the connection with current gateway
+ping _gateway
+
+
+================================================================================

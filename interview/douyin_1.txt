@@ -1,0 +1,40 @@
+第一题. 字节跳动在北京有N个工区，形成一个环状，Bytebus是往返在各个工区的通勤车，按工区的顺序行驶，其中第 i 个工区有汽油 gas[i] 升。你有一辆油箱容量无限的的Bytebus，从第 i 个工区开往第 i+1 个工区需要消耗汽油 cost[i] 升。你从其中的一个工区出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时工区的编号，否则返回 -1。
+输入:
+gas  = [1,2,3,4,5]
+cost = [3,4,5,1,2]
+输出: 3
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int solver(vector<int>& gas, vector<int>& cost) {
+    int size = gas.size();
+    int start = 0;
+
+    while (start != size) {
+        int cur_gas = gas[start];
+        int count = 1;
+        for (; count < size; count++) {
+            if (cur_gas - cost[(start + count - 1) % size] > 0) {
+                cur_gas -= cost[(start + count - 1) % size];
+                cur_gas += gas[(start + count) % size];
+            } else {
+                break;
+            }
+        }
+        if (count == size) {
+            return start;
+        }
+        start += count;
+    }
+    return -1;
+}
+
+int main() {
+    vector<int> gas {1, 2, 3, 4, 5};
+    vector<int> cost {3, 4, 5, 1, 2};
+
+    cout << solver(gas, cost) << endl;
+    return 0;
+}

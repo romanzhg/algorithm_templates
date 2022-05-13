@@ -1,0 +1,126 @@
+
+
+
+
+
+================================================================================
+map names
+zhonglv_full
+cqfull2
+shaluowan_warehouse
+
+================================================================================
+run
+# bootstrap
+git clone https://gitlab.dorabot.com/mobility/bootstrap.git
+git clone https://gitlab.dorabot.com/mobility/bootstrap_data.git
+
+
+
+melodic ; colcon build --catkin-skip-building-tests
+melodic ; colcon build --catkin-skip-building-tests --packages-up-to mob_action_control
+melodic ; colcon build --catkin-skip-building-tests --cmake-args -DCMAKE_BUILD_TYPE=Debug -DFORCE_DEBUG_BUILD=True
+
+in agent_ws
+./bootstrap/pull --conf bootstrap_data/runs/agent.jsonc .
+./bootstrap/launcher bootstrap_data/runs/agent.jsonc --map shaluowan_warehouse --agent APJ305 --server localhost
+./bootstrap/launcher bootstrap_data/runs/agent_sim_simulator.jsonc --map zhonglv_full --agent APJ301 --server localhost --config pnc_rviz --config enable_route_optimization=false --config use_old_fork_ctr=true
+./bootstrap/launcher bootstrap_data/runs/agent_sim_uriel.jsonc --map zhonglv_full --agent APJ312 --server localhost
+(in uriel, use full2-chantwarehouse)
+
+
+in server_ws
+./bootstrap/pull --conf bootstrap_data/runs/server.jsonc .
+./bootstrap/launcher bootstrap_data/runs/server.jsonc  --map zhonglv_full  --config agent_model=apj3.0 --disable-self-update
+(to mock all: "agent_model=apj3.0;mock_all")
+
+log location
+~/.ros/log/latest
+================================================================================
+
+launch rviz
+roslaunch --wait mob_visualization robot_visualization.launch &
+roslaunch --wait mob_visualization display.launch
+
+run plogger
+rosrun plotjuggler PlotJuggler
+
+
+
+Use bag
+1. start the session
+./bootstrap/launcher bootstrap_data/runs/agent_sim_play_bag.jsonc --agent APJ313 --map zhonglv_full --disable-self-update --server localhost --config pnc_rviz
+
+2. start rqt
+rosrun rqt_console rqt_console
+
+3. start pnc
+roslaunch mob_action_control refactored_action_server_only.launch PLAY_BAG_MODE:=true
+
+4. play bag
+rosbag play --clock APJ211_APJ211_2021-04-02-13-38-45.bag -s <start time in seconds>
+
+
+misc:
+in case of port reuse, add option "u"
+utopia -d ~/utopia_config/container -n common
+utopia -d ~/utopia_config/container -un common
+
+colcon and clion
+1. melodic ; colcon build --catkin-skip-building-tests
+2. source install/setup.zsh
+3. Launch clion from that terminal
+4. Open the CMakeLists.txt in the workspace root
+
+
+================================================================================
+
+
+
+================================================================================
+Debug with gdb
+
+0. Add break points. update the launch file(<arg name="debug" default="false"/> -> true) 
+
+1. rebuild the program with.
+melodic ; colcon build --catkin-skip-building-tests
+
+3. run normally(tested with play bag mode)
+
+
+================================================================================
+
+To log all outputs:
+rosrun mob_action_control mob_action_control_node 2>&1 | tee /tmp/agent_out.txt
+To log all outputs with agent id:
+rosrun mob_action_control mob_action_control_node 2>&1 | tee /tmp/agent_${ROBOT_ID}.txt
+
+
+kill job running at background
+jobs -p
+kill SIGINT <process id>
+
+kill
+
+
+
+================================================================================
+play sound
+rostopic pub /play/sound/any std_msgs/String -1 "data: right"
+
+================================================================================
+
+
+build and run ros demo
+
+catkin_make
+roslaunch learning_tf start_demo.launch
+
+
+
+================================================================================
+
+
+
+
+

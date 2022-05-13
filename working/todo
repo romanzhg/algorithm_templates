@@ -1,0 +1,79 @@
+53. 对pnc的指令是否可以以状态的方式下发？即车体的目标状态？另一个想法，server下发的指令应作为一个sequence处理，前一个指令即后一个指令的前提条件。另一个想法，多个task manager应可并行运行，任何一个结束条件满足了，即可认为结束。另一个想法，当前action的停止判定是在action runner中进行的，是否可以放在别的地方进行。
+是否可以有两个执行器，轨迹（应支持开环push模式）和fork，各个task manager给这两个执行器下指令。
+52. pnc应记录过去一段时间发送过的指令序列。
+51. pnc的结构应考虑这样一个改动，即任务不更新，不需要产生新的action。任务更新可能因为新的导航点的下发，也可能因为传感器传来新的数据。
+50. pnc崩溃前应先录个bag。rss可以对pnc发心跳，让pnc知道链接还在，有了这个心跳pnc可记录从发不出消息到tcp汇报断连的时间。pnc应先不取消任务，由server取消。
+
+49. 可以考虑重新定义vision dock和charging的api，charging应将导航部分和打开充电开关部分分开。vision dock本质是一个导航。重整充电逻辑。似乎可以将移动到某点和打开/关闭充电开关分开成两步。
+
+46. 应思考一个pnc的新型架构，更好的分开决策和执行。
+
+20. 与征宇讨论vision pick中的相机切换及管理。
+
+14. vision相关接口的修改，拍照的结果应存在一个统一的地方。
+
+42. 播放器可以考虑更新
+https://stackoverflow.com/questions/40226329/c-program-that-controls-mplayer
+pnc应控制播放器并实现打断功能。
+
+41. 应写文档说明dpc的各种flag配置。cpu占用率高是否应停车应写成一配置项。
+
+40. 应考虑加一层log，写在更容易读的地方，以更合适的格式。
+
+37. check ros log level: for example, how to print only warn logs but not info logs.
+
+34. 从task queue中取出新任务应和worker thread放在同一thread中。可以使用一个down sample counter来降低检查消息的频率。？或应考虑将来任务来时更多的计算需求？
+
+3. 思考在软件架构中，能否在pnc行走进入到下一个阶段时检查前置条件。
+
+5. 整合陈焕和的修改 simulator, 曲线。
+
+
+8. 修改simulator, 配合胡一洲，分析哪些可以交给陈焕和。
+
+
+17. 修改vision dock，refactor/debug.
+18. 应了解行为树，思考是否有写法可以借鉴。
+16. 应实现完全没有定位时也可以避障。
+
+
+23. 思考apj叉的输出如何不突变而是渐变。
+24. 与征宇讨论删一些uriel中不需要的地图，与征宇和思睿讨论删除cq_app中的一些东西。
+
+27. 与汉宗讨论叉应如何处理。控制应尽量统一。应检查汉宗提供的嵌入式接口。
+
+7. 继续修改pnc的api。navigation应处理类似与UpdateNavigation的内容。
+
+
+22. 应有办法检查当前主循环是否按照预定的频率来运行。应在合适的时候merge.
+void MobActionControl::WorkerThread() {
+    ros::Rate rate_keeper(kWorkerRate);
+
+    double worker_timestamp_secs = ros::Time::now().toSec();
+    const double target_interval_secs = (1 / kWorkerRate) * 1.2;
+
+    while (ros::ok()) {
+        rate_keeper.sleep();
+
+        double new_worker_timestamp_secs = ros::Time::now().toSec();
+        if (new_worker_timestamp_secs - worker_timestamp_secs > target_interval_secs) {
+            ROS_WARN("Main loop missed its target rate, target elapsed time since last run: %lf actual elapsed time since last run: %lf",
+                     1 / kWorkerRate, new_worker_timestamp_secs - worker_timestamp_secs);
+        }
+        worker_timestamp_secs = new_worker_timestamp_secs;
+
+https://gitlab.dorabot.com/mobility/mob_pnc/-/blob/master/mob_action_control/src/mob_local_planner/local_planner_ros.cpp#L651 这段程序sleep了3秒。@潘金文/Jinwen Pan  tof的事情你们调完了可以一起看一下怎么实现更好，local planner是在worker thread里面调用的，这个thread目标频率是一秒跑20次，不应该在local planner里面有sleep，可以放在别的地方实现。
+
+
+28. 播放声音也应搞成依赖状态的，而非当前在task manager中调用。应思考类似的机制能否确保任务完成时的轮胎锁死指令被收到。
+
+
+
+
+https://b4i9mu4r7r.feishu.cn/docs/doccnTOdrHqrDUXnl3nHXzwV3Tc#xPYmJF 
+
+
+
+
+
+

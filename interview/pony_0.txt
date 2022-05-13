@@ -1,0 +1,188 @@
+// 在线面试平台。将链接分享给你的朋友以加入相同的房间。
+// Author: tdzl2003<dengyun@meideng.net>
+
+// hashmap
+//   - get(key)
+//   - set(key, value)
+//   - set_all(value)
+// O(1)
+struct Elem {
+  int key, value, timestamp;
+  Elem(int key, int value, int timestamp = -1) : key(key), value(value), timestamp(timestamp) {};
+};
+
+int GetCurrentTime() {
+  
+}
+int GetHashValue(int key) {
+  
+}
+
+class HashMap {
+  // Throw exception if the key not found.
+  int Get(int key) {
+  	int index = GetHashValue(key) % hash_table_size;
+    for (const Elem& e : vec[index]) {
+      if (e.key == key) {
+        if (e.timestamp > set_all_value.timestamp) {
+          return e.value;
+        } else {
+          return set_all_value.value;
+        }
+      }
+    }
+    
+    throw exception();
+  }
+  
+  void Set(int key, int value) {
+    element_count++;
+    int index = GetHashValue(key) % hash_table_size;
+    vec[index].push_back(Elem(key, value, GetCurrentTime()));
+  }
+  
+  void SetAll(int value) {
+    set_all_value = {0, value, GetCurrentTime()};
+  }
+  
+  int hash_table_size = 11;
+  int element_count = 0;
+  vector<vector<Elem>> vec;
+  Elem set_all_value {0, 0, -1};
+  
+}
+
+
+
+
+
+
+
+// 在线面试平台。将链接分享给你的朋友以加入相同的房间。
+// Author: tdzl2003<dengyun@meideng.net>
+排序链表
+Node* Sort(Node* head) {
+  if (head == NULL) {
+    return NULL;
+  }
+  
+  Node *slow = head, *fast = head;
+  while (fast != NULL) {
+    fast = fast->next;
+    if (fast != NULL) {
+      fast = fast->next;
+    }
+    slow = slow->next;
+  }
+  
+  Node *half = slow->next;
+  slow->next = NULL;
+  
+  Node* first_half = Sort(head);
+  Node* second_half = Sort(half);
+
+  return Merge(first_half, second_half);
+}
+
+Node* Merge(Node* first, Node* second) {
+  Node* rtn = new Node(0);
+  Node* head = rtn;
+  while (first != NULL && second != NULL) {
+    if (first.value < second.value) {
+      head->next = first;
+      head = head->next;
+      first = first->next;
+    } else {
+      head->next = second;
+      head = head->next;
+      second = second->next;
+    }
+  }
+  
+  if (first != NULL) {
+    head->next = first;
+  } else {
+    head->next = second;
+  }
+  
+  Node* tmp = rtn->next;
+  delete rtn;
+  return tmp;
+}
+
+
+
+// 在线面试平台。将链接分享给你的朋友以加入相同的房间。
+// Author: tdzl2003<dengyun@meideng.net>
+
+Point {x, y}
+
+p[0..n-1]
+判断点集是否在两条平行线上
+
+const double kEpsilon = 1e-8;
+
+bool DoubleEquals(double a, double b) {
+  return abs(a - b) < kEpsilon;
+}
+
+bool Helper(double p, vector<Point>& points) {
+  int size = points.size();
+  vector<bool> matched(size, false);
+  
+  // First round.
+  matched[0] = true;
+  for (int i = 1; i < size; i++) {
+  	if (DoubleEquals(GetSlope(points[0], points[i]), p)) {
+    	matched[i] = true;
+    }
+  }
+  
+  int unmatched = 0;
+  for (; unmatched < size; unmatched++) {
+    if (matched[unmatched] == false) {
+      break;
+    }
+  }
+  if (unmatched == size) {
+    return true;
+  }
+  
+  // Second round.
+  matched[unmatched] = true;
+  for (int i = 0; i < size; i++) {
+    if (matched[i]) {
+      continue;
+    }
+  	if (DoubleEquals(GetSlope(points[unmatched], points[i]), p)) {
+    	matched[i] = true;
+    }
+  }
+
+  unmatched = 0;
+  for (; unmatched < size; unmatched++) {
+    if (matched[unmatched] == false) {
+      break;
+    }
+  }
+  return unmatched == size;
+}
+
+double GetSlope(Point p1, Point p2) {
+  if (p1.x - p2.x == 0) {
+    return DBL_MAX;
+  }
+  return (double)(p1.y - p2.y) / (double)(p1.x - p2.x);
+}
+
+bool IsOnParalleLines(vector<Point> points) {
+	if ((int)points.size() < 4) {
+    return true;
+  }
+  
+  // Take point at index 0/1 as the special points.
+  return Helper(GetSlope(points[0], points[1]), points)
+      || Helper(GetSlope(points[2], points[3]), points)
+      || Helper(GetSlope(points[0], points[2]), points)
+      || Helper(GetSlope(points[1], points[2]), points);
+}

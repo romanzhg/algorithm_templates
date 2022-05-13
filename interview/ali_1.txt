@@ -1,0 +1,72 @@
+题目内容：
+给定一个DAG（有向无环图），总共有N个点。
+所有边长度由邻接矩阵d[][]给出：
+d[i][j] 表示i到j有一条长度为d[i][j]的单向路径；
+d[i][j] 取值范围为 [0, 10^9] 整数
+
+要求总路径长度为13整数倍的前提下，1到N的最短路径长度是多少？
+
+样例：
+
+输入：
+2
+0 13
+0 0
+
+输出：13
+
+
+
+#include <iostream>
+#include <climit>
+
+using namespace std;
+
+const kMod = 13;
+
+struct Node {
+  int id;
+  long long dist;
+  Node(int id, long long dist) : id(id), dist(dist) {};
+};
+
+void solver(const vector<vector<int>>& dist, vector<vector<long long>>& dp, int N) {
+  dp[0][0] = 0;
+
+  queue<Node> to_expand;
+  to_expand.push(Node(0, 0));
+
+  while (!to_expand.empty()) {
+    Node cur = to_expand.front();
+    to_expand.pop();
+    for (int i = 0; i < N; i++) {
+      if (dist[cur.id][i] != 0) {
+        long long new_dist = cur.dist + dist[cur.id][i];
+        int remainder = new_dist % kMod;
+        if (dp[i][remainder] > new_dist) {
+          dp[i][remainder] = new_dist;
+          to_expand.push(Node(i, new_dist));
+        }
+      }
+    }
+  }
+}
+
+int main() {
+  int N;
+  scanf("%d", &N);
+
+  vector<vector<int>> dist(N, vector<int>(N, 0));
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < N; j++) {
+      // Index started at 0.
+      scanf("%d", &dist[i][j]);
+    }
+  }
+
+  vector<vector<long long>> dp(N, vector<long long>(kMod, LONG_LONG_MAX));
+
+  solver(dist, dp, N);
+  cout << dp[N - 1][0] << endl;
+  return 0;
+}

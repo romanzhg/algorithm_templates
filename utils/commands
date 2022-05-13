@@ -1,0 +1,27 @@
+uva
+compile
+g++ -std=c++11 prog.cc
+
+poj
+compile
+g++ prog.cc
+
+check status
+git status
+
+add new file
+git add <file>
+
+remove file
+git reset <file>
+
+commit
+git commit -m "message"
+
+discard unstaged changes
+git checkout -- .
+git checkout -- path/to/file/to/revert
+
+push
+git push origin master
+
